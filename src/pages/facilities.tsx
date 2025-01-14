@@ -24,7 +24,6 @@ const facilities = [
 const FacilitiesPage = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Navbar />
       <main className="flex-grow">
       <div className="container mx-auto px-4 py-20 sm:py-24">
           <h1 className="text-4xl font-bold mb-8">Our Facilities</h1>
@@ -47,7 +46,6 @@ const FacilitiesPage = () => {
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };

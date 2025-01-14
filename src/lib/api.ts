@@ -131,59 +131,78 @@ export const updatePlayerStats = async (
   season: string,
   competition: string,
   stat: "goals" | "appearances",
+  operation: "increment" | "decrement"
 ) => {
-  const { data: existing, error: findError } = await supabase
-    .from("player_stats")
-    .select("*")
-    .eq("player_id", playerId)
-    .eq("season", season)
-    .eq("competition", competition)
-    .maybeSingle();
-
-  if (findError) {
-    console.error("Error finding player stats:", findError);
-    throw findError;
-  }
-
-  if (existing) {
-    const updates = {
-      [stat]: (existing[stat] || 0) + 1,
-      updated_at: new Date().toISOString()
-    };
-
-    const { data, error } = await supabase
+  try {
+    const { data: existing, error: findError } = await supabase
       .from("player_stats")
-      .update(updates)
-      .eq("id", existing.id)
-      .select()
-      .single();
+      .select("*")
+      .eq("player_id", playerId)
+      .eq("season", season)
+      .eq("competition", competition)
+      .maybeSingle();
 
-    if (error) {
-      console.error("Error updating player stats:", error);
-      throw new Error(error.message);
+    if (findError) {
+      console.error("Error finding player stats:", findError);
+      throw findError;
     }
-    return data;
-  } else {
-    const newRecord = {
-      player_id: playerId,
-      season,
-      competition,
-      goals: stat === "goals" ? 1 : 0,
-      appearances: stat === "appearances" ? 1 : 0,
-      updated_at: new Date().toISOString()
-    };
 
-    const { data, error } = await supabase
-      .from("player_stats")
-      .insert(newRecord)
-      .select()
-      .single();
+    if (existing) {
+      const currentValue = existing[stat] || 0;
 
-    if (error) {
-      console.error("Error creating player stats:", error);
-      throw new Error(error.message);
+      if (operation === "decrement" && currentValue <= 0) {
+        throw new Error(`Cannot decrement ${stat} below 0`);
+      }
+
+      const newValue = operation === "increment"
+        ? currentValue + 1
+        : currentValue - 1;
+
+      const updates = {
+        [stat]: newValue,
+        updated_at: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from("player_stats")
+        .update(updates)
+        .eq("id", existing.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error updating player stats:", error);
+        throw new Error(error.message);
+      }
+      return data;
+    } else {
+      if (operation === "decrement") {
+        return null;
+      }
+
+      const newRecord = {
+        player_id: playerId,
+        season,
+        competition,
+        goals: stat === "goals" ? 1 : 0,
+        appearances: stat === "appearances" ? 1 : 0,
+        updated_at: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from("player_stats")
+        .insert(newRecord)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error creating player stats:", error);
+        throw new Error(error.message);
+      }
+      return data;
     }
-    return data;
+  } catch (error) {
+    console.error("Error updating player stats:", error);
+    throw error;
   }
-  
 };

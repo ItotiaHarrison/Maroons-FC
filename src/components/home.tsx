@@ -1,6 +1,3 @@
-import React from "react";
-import Navbar from "./layout/Navbar";
-import Footer from "./layout/Footer";
 import HeroSection from "./home/HeroSection";
 import MatchesOverview from "./matches/MatchesOverview";
 import FeaturedSections from "./home/FeaturedSections";
@@ -9,68 +6,57 @@ import GalleryPreview from "./gallery/GalleryPreview";
 interface HomePageProps {
   isLoggedIn?: boolean;
   cartItemCount?: number;
-  heroData?: {
-    backgroundImage?: string;
-    title?: string;
-    subtitle?: string;
-    ctaText?: string;
-    ctaLink?: string;
-    announcement?: {
-      text: string;
-      date: string;
-    };
-  };
 }
 
 const HomePage = ({
   isLoggedIn = false,
   cartItemCount = 0,
-  heroData = {
-    backgroundImage:
-      "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80",
-    title: "Welcome to MAROON'S FC",
-    subtitle: "Experience the thrill of the beautiful game",
-    ctaText: "Buy Tickets",
-    ctaLink: "#tickets",
-    announcement: {
-      text: "Next Home Game vs. Uthiru Vision",
-      date: "Saturday, Feb 15th, 2025",
-    },
-  },
 }: HomePageProps) => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Navbar isLoggedIn={isLoggedIn} cartItemCount={cartItemCount} />
-
       <main className="flex-grow">
-        <HeroSection
-          backgroundImage={heroData.backgroundImage}
-          title={heroData.title}
-          subtitle={heroData.subtitle}
-          ctaText={heroData.ctaText}
-          ctaLink={heroData.ctaLink}
-          announcement={heroData.announcement}
-        />
+        {/* Hero Section */}
+        <section className="relative w-full min-h-[60vh] sm:min-h-[70vh] lg:min-h-[80vh]">
+          <HeroSection />
+        </section>
 
-        <section className="py-12">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-8">
-              Latest Matches
-            </h2>
-            <MatchesOverview />
+        {/* Latest Matches Section */}
+        <section className="py-8 sm:py-12 lg:py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-6 sm:mb-8 lg:mb-12">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+                Latest Matches
+              </h2>
+              <p className="mt-2 text-sm sm:text-base text-gray-600">
+                Stay updated with our recent games
+              </p>
+            </div>
+            <div className="max-w-7xl mx-auto overflow-x-auto">
+              <div className="min-w-full sm:min-w-0">
+                <MatchesOverview />
+              </div>
+            </div>
           </div>
         </section>
 
-        <FeaturedSections />
+        {/* Featured Sections */}
+        <section className="py-8 sm:py-12 lg:py-16 bg-gray-50">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              <FeaturedSections />
+            </div>
+          </div>
+        </section>
 
-        <section className="py-12 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <GalleryPreview />
+        {/* Gallery Preview Section */}
+        <section className="py-8 sm:py-12 lg:py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              <GalleryPreview />
+            </div>
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };

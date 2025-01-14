@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { AddPlayerDialog } from "@/components/players/AddPlayerDialog";
 import { EditPlayerDialog } from "@/components/players/EditPlayerDialog";
 import { fetchPlayers, type Player } from "@/lib/api";
+import { Input } from "@/components/ui/input";
+import { Search, X } from "lucide-react";
 
 const ROLE_ORDER = ["Coach", "Captain", "Treasurer", "Member"];
 
 const TeamPage = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadPlayers = async () => {
     try {
@@ -27,8 +28,15 @@ const TeamPage = () => {
     loadPlayers();
   }, []);
 
+  // Filter players based on search query
+  const filteredPlayers = searchQuery
+    ? players.filter((player) =>
+        player.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : players;
+
   // Group players by role
-  const playersByRole = players.reduce((groups, player) => {
+  const playersByRole = filteredPlayers.reduce((groups, player) => {
     const role = player.role || "Member";
     if (!groups[role]) {
       groups[role] = [];
@@ -86,7 +94,6 @@ const TeamPage = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      <Navbar />
       <main className="flex-grow">
         <div className="container mx-auto px-4 py-20 sm:py-24">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
@@ -96,17 +103,51 @@ const TeamPage = () => {
             <AddPlayerDialog onPlayerAdded={loadPlayers} />
           </div>
 
+          {/* Search section */}
+          <div className="mb-8">
+            <div className="relative max-w-md mx-auto">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                type="text"
+                placeholder="Search team members..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10 w-full"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <div className="text-sm text-gray-500 mt-2 text-center">
+                Found {filteredPlayers.length} player
+                {filteredPlayers.length !== 1 ? "s" : ""}
+              </div>
+            )}
+          </div>
+
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
               <p className="mt-4 text-gray-600">Loading team members...</p>
             </div>
-          ) : players.length === 0 ? (
+          ) : filteredPlayers.length === 0 ? (
             <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-600">No players added yet.</p>
-              <p className="text-sm text-gray-500 mt-2">
-                Click the "Add Player" button to get started.
-              </p>
+              {players.length === 0 ? (
+                <>
+                  <p className="text-gray-600">No players added yet.</p>
+                  <p className="text-sm text-gray-500 mt-2">
+                    Click the "Add Player" button to get started.
+                  </p>
+                </>
+              ) : (
+                <p className="text-gray-600">No players found matching your search.</p>
+              )}
             </div>
           ) : (
             <div className="space-y-8">
@@ -126,7 +167,6 @@ const TeamPage = () => {
           )}
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
