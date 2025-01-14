@@ -8,22 +8,26 @@ import FixturesPage from "./pages/fixtures";
 import ResultsPage from "./pages/results";
 import StandingsPage from "./pages/standings";
 import GalleryPage from "./pages/gallery";
+import StatisticsPage from "./pages/statistics";
 import routes from "tempo-routes";
 
 function App() {
   return (
     <Suspense fallback={<p>Loading...</p>}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/facilities" element={<FacilitiesPage />} />
-        <Route path="/history" element={<HistoryPage />} />
-        <Route path="/team" element={<TeamPage />} />
-        <Route path="/fixtures" element={<FixturesPage />} />
-        <Route path="/results" element={<ResultsPage />} />
-        <Route path="/standings" element={<StandingsPage />} />
-        <Route path="/gallery" element={<GalleryPage />} />
-      </Routes>
-      {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+      <div className="min-h-screen">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/facilities" element={<FacilitiesPage />} />
+          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/team" element={<TeamPage />} />
+          <Route path="/statistics" element={<StatisticsPage />} />
+          <Route path="/fixtures" element={<FixturesPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/standings" element={<StandingsPage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
+        </Routes>
+        {import.meta.env.VITE_TEMPO === "true" && useRoutes(routes)}
+      </div>
     </Suspense>
   );
 }

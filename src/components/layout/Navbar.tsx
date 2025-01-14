@@ -3,9 +3,9 @@ import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  NavigationMenuLink,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -30,7 +30,7 @@ const Navbar = ({ isLoggedIn = false, cartItemCount = 0 }: NavbarProps) => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-black/20 backdrop-blur-sm"}`}
     >
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo */}
@@ -72,6 +72,12 @@ const Navbar = ({ isLoggedIn = false, cartItemCount = 0 }: NavbarProps) => {
                       className="text-gray-900 hover:bg-gray-100 p-2 rounded-md transition-colors"
                     >
                       Team
+                    </NavigationMenuLink>
+                    <NavigationMenuLink
+                      href="/statistics"
+                      className="text-gray-900 hover:bg-gray-100 p-2 rounded-md transition-colors"
+                    >
+                      Statistics
                     </NavigationMenuLink>
                   </div>
                 </NavigationMenuContent>
@@ -200,6 +206,12 @@ const Navbar = ({ isLoggedIn = false, cartItemCount = 0 }: NavbarProps) => {
                   className="text-lg hover:text-primary transition-colors"
                 >
                   Team
+                </a>
+                <a
+                  href="/statistics"
+                  className="text-lg hover:text-primary transition-colors"
+                >
+                  Statistics
                 </a>
                 <a
                   href="/fixtures"
