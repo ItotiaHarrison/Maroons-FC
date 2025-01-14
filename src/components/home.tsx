@@ -28,13 +28,13 @@ const HomePage = ({
   heroData = {
     backgroundImage:
       "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80",
-    title: "Welcome to FC United",
+    title: "Welcome to MAROON'S FC",
     subtitle: "Experience the thrill of the beautiful game",
     ctaText: "Buy Tickets",
     ctaLink: "#tickets",
     announcement: {
-      text: "Next Home Game vs. City Rivals",
-      date: "Saturday, March 15th, 2024",
+      text: "Next Home Game vs. Uthiru Vision",
+      date: "Saturday, Feb 15th, 2025",
     },
   },
 }: HomePageProps) => {

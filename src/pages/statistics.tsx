@@ -11,7 +11,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
-import { fetchPlayerStats, updatePlayerStats } from "@/lib/api";
+import { fetchPlayersWithStats, updatePlayerStats } from "@/lib/api";
+import { useToast } from "@/components/ui/use-toast";
 
 type PlayerWithStats = {
   id: string;
@@ -27,22 +28,19 @@ const StatisticsPage = () => {
   const [season, setSeason] = useState("2023-24");
   const [competition, setCompetition] = useState("all");
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   const loadStats = async () => {
     try {
-      const data = await fetchPlayerStats(season, competition);
-      // Transform the data to match our component's needs
-      const transformedData = data.map((stat) => ({
-        id: stat.player_id,
-        name: stat.players.name,
-        image_url: stat.players.image_url,
-        position: stat.players.position,
-        appearances: stat.appearances || 0,
-        goals: stat.goals || 0,
-      }));
-      setPlayers(transformedData);
+      const data = await fetchPlayersWithStats(season, competition);
+      setPlayers(data);
     } catch (error) {
       console.error("Error loading stats:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load player statistics",
+      });
     } finally {
       setLoading(false);
     }
@@ -58,9 +56,18 @@ const StatisticsPage = () => {
   ) => {
     try {
       await updatePlayerStats(playerId, season, competition, stat);
+      toast({
+        title: "Success",
+        description: `Player ${stat} updated successfully`,
+      });
       loadStats(); // Reload the stats
     } catch (error) {
       console.error(`Error updating ${stat}:`, error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `Failed to update player ${stat}`,
+      });
     }
   };
 
@@ -87,7 +94,7 @@ const StatisticsPage = () => {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       <main className="flex-grow">
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-4 py-20 sm:py-24">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold">Player Statistics</h1>
             <div className="flex gap-4">

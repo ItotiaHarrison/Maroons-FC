@@ -35,6 +35,8 @@ interface EditPlayerDialogProps {
 }
 
 const positions = ["Forward", "Midfielder", "Defender", "Goalkeeper"];
+const roles = ["Captain", "Coach", "Treasurer", "Member"];
+const genders = ["Male", "Female"];
 
 export function EditPlayerDialog({
   player,
@@ -44,12 +46,18 @@ export function EditPlayerDialog({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [name, setName] = useState(player.name);
   const [position, setPosition] = useState(player.position);
+  const [role, setRole] = useState(player.role || "Member");
+  const [gender, setGender] = useState(player.gender || "Male");
+  const [jerseyNumber, setJerseyNumber] = useState(
+    player.jersey_number?.toString() || ""
+  );
+  const [imageUrl, setImageUrl] = useState(player.image_url || "");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !position) {
+    if (!name || !position || !role || !gender) {
       toast({
         variant: "destructive",
         title: "Error",
@@ -63,7 +71,10 @@ export function EditPlayerDialog({
       await updatePlayer(player.id, {
         name,
         position,
-        image_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name.replace(/ /g, "")}`,
+        role,
+        gender,
+        jersey_number: jerseyNumber ? parseInt(jerseyNumber) : undefined,
+        image_url: imageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name.replace(/ /g, "")}`,
       });
       toast({
         title: "Success",
@@ -181,6 +192,74 @@ export function EditPlayerDialog({
                 </SelectContent>
               </Select>
             </div>
+
+
+            <div className="space-y-2">
+              <label htmlFor="role" className="text-sm font-medium">
+                Role *
+              </label>
+              <Select value={role} onValueChange={setRole}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {roles.map((r) => (
+                    <SelectItem key={r} value={r}>
+                      {r}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+
+            <div className="space-y-2">
+              <label htmlFor="gender" className="text-sm font-medium">
+                Gender *
+              </label>
+              <Select value={gender} onValueChange={setGender}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  {genders.map((g) => (
+                    <SelectItem key={g} value={g}>
+                      {g}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+
+            <div className="space-y-2">
+              <label htmlFor="jerseyNumber" className="text-sm font-medium">
+                Jersey Number
+              </label>
+              <Input
+                id="jerseyNumber"
+                type="number"
+                value={jerseyNumber}
+                onChange={(e) => setJerseyNumber(e.target.value)}
+                placeholder="Enter jersey number"
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="imageUrl" className="text-sm font-medium">
+                Image URL
+              </label>
+              <Input
+                id="imageUrl"
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="Enter image URL"
+                className="w-full"
+              />
+            </div>
+
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Updating..." : "Update Player"}
             </Button>

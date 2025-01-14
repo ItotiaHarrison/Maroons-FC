@@ -21,7 +21,7 @@ const HeroSection = ({
     "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d",
     "https://images.unsplash.com/photo-1522778119026-d647f0596c20",
   ],
-  title = "Welcome to FC United",
+  title = "Welcome to MAROON'S FC",
   subtitle = "Experience the thrill of the beautiful game",
   ctaText = "Buy Tickets",
   ctaLink = "#tickets",
@@ -37,7 +37,7 @@ const HeroSection = ({
       setCurrentImageIndex((prevIndex) =>
         prevIndex === backgroundImages.length - 1 ? 0 : prevIndex + 1,
       );
-    }, 5000); // Change image every 5 seconds
+    }, 5000); 
 
     return () => clearInterval(interval);
   }, [backgroundImages.length]);

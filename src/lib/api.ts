@@ -4,6 +4,9 @@ export interface Player {
   id: string;
   name: string;
   position: string;
+  role: string;
+  gender: string;
+  jersey_number?: number;
   image_url?: string;
   created_at?: string;
 }
@@ -31,6 +34,55 @@ export const fetchPlayers = async () => {
     throw new Error(error.message);
   }
   return data;
+};
+
+export const fetchPlayersWithStats = async (
+  season: string,
+  competition: string = "all",
+) => {
+  // First fetch all players
+  const { data: players, error: playersError } = await supabase
+    .from("players")
+    .select()
+    .order("name");
+
+  if (playersError) throw new Error(playersError.message);
+
+  // Then fetch stats for the given season and competition
+  let statsQuery = supabase.from("player_stats").select("*");
+
+  if (competition !== "all") {
+    statsQuery = statsQuery.eq("competition", competition);
+  }
+
+  const { data: stats, error: statsError } = await statsQuery.eq(
+    "season",
+    season,
+  );
+
+  if (statsError) throw new Error(statsError.message);
+
+  // Combine players with their stats
+  return players.map((player) => {
+    const playerStats = stats?.find(
+      (stat) =>
+        stat.player_id === player.id &&
+        stat.season === season &&
+        (competition === "all" || stat.competition === competition),
+    ) || { appearances: 0, goals: 0 };
+
+    return {
+      id: player.id,
+      name: player.name,
+      position: player.position,
+      role: player.role,
+      gender: player.gender,
+      jersey_number: player.jersey_number,
+      image_url: player.image_url,
+      appearances: playerStats.appearances || 0,
+      goals: playerStats.goals || 0,
+    };
+  });
 };
 
 export const addPlayer = async (player: Omit<Player, "id" | "created_at">) => {
@@ -74,25 +126,6 @@ export const deletePlayer = async (id: string) => {
   }
 };
 
-export const fetchPlayerStats = async (
-  season: string,
-  competition: string = "all",
-) => {
-  let query = supabase.from("player_stats").select(`*, players(*)`);
-
-  if (competition !== "all") {
-    query = query.eq("competition", competition);
-  }
-
-  const { data, error } = await query.eq("season", season);
-
-  if (error) {
-    console.error("Error fetching player stats:", error);
-    throw new Error(error.message);
-  }
-  return data;
-};
-
 export const updatePlayerStats = async (
   playerId: string,
   season: string,
@@ -101,7 +134,7 @@ export const updatePlayerStats = async (
 ) => {
   const { data: existing, error: findError } = await supabase
     .from("player_stats")
-    .select()
+    .select("*")
     .eq("player_id", playerId)
     .eq("season", season)
     .eq("competition", competition)
@@ -109,13 +142,18 @@ export const updatePlayerStats = async (
 
   if (findError) {
     console.error("Error finding player stats:", findError);
-    throw new Error(findError.message);
+    throw findError;
   }
 
   if (existing) {
+    const updates = {
+      [stat]: (existing[stat] || 0) + 1,
+      updated_at: new Date().toISOString()
+    };
+
     const { data, error } = await supabase
       .from("player_stats")
-      .update({ [stat]: existing[stat] + 1 })
+      .update(updates)
       .eq("id", existing.id)
       .select()
       .single();
@@ -126,14 +164,18 @@ export const updatePlayerStats = async (
     }
     return data;
   } else {
+    const newRecord = {
+      player_id: playerId,
+      season,
+      competition,
+      goals: stat === "goals" ? 1 : 0,
+      appearances: stat === "appearances" ? 1 : 0,
+      updated_at: new Date().toISOString()
+    };
+
     const { data, error } = await supabase
       .from("player_stats")
-      .insert({
-        player_id: playerId,
-        season,
-        competition,
-        [stat]: 1,
-      })
+      .insert(newRecord)
       .select()
       .single();
 
@@ -143,4 +185,5 @@ export const updatePlayerStats = async (
     }
     return data;
   }
+  
 };
